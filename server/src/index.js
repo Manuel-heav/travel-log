@@ -7,11 +7,13 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 const middlewares = require('./middlewares');
+const logs = require('./api/logs');
 
 const app = express();
 
 mongoose.connect(process.env.DATABASE_URL, {
   useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
 app.use(morgan('common'));
@@ -21,6 +23,7 @@ app.use(
     origin: process.env.CORS_ORIGIN,
   }),
 );
+app.use(express.json());
 
 app.get('/', (req, res) => {
   res.json({
@@ -28,8 +31,9 @@ app.get('/', (req, res) => {
   });
 });
 
-app.use(middlewares.errorHandler);
+app.use('/api/logs', logs);
 app.use(middlewares.notFound);
+app.use(middlewares.errorHandler);
 
 const port = process.env.PORT || 1337;
 app.listen(port, () => {
